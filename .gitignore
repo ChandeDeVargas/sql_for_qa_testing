@@ -1,0 +1,17 @@
+# MySQL
+*.sql~
+*.swp
+Documentacion.txt
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Results (optional)
+# results/*.txt
+# results/*.csv
