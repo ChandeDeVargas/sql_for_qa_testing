@@ -46,4 +46,4 @@ ORDER BY orders.total DESC;
 -- - User ID 4: Negative total and warning status
 -- - User ID 13: Total 0 and warning status
 -- - User ID 14: Negative Total and warning status
--- ============================================
+-- =============================================
