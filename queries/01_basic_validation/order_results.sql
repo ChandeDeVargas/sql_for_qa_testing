@@ -39,3 +39,11 @@ FROM orders
 JOIN users ON orders.user_id = users.id
 JOIN products ON orders.product_id = products.id
 ORDER BY orders.total DESC;
+
+
+-- ============================================
+-- Expected bugs to find:
+-- - User ID 4: Negative total and warning status
+-- - User ID 13: Total 0 and warning status
+-- - User ID 14: Negative Total and warning status
+-- ============================================
