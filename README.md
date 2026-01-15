@@ -173,12 +173,12 @@ Or open in MySQL Workbench and execute.
 
 ## 📈 Project Status
 
-| Category         | Status         | Queries |
-| ---------------- | -------------- | ------- |
-| Basic Validation | 🚧 In Progress | 0/3     |
-| Data Quality     | ⏳ Pending     | 0/4     |
-| Duplicates       | ⏳ Pending     | 0/3     |
-| Data Integrity   | ⏳ Pending     | 0/3     |
+| Category         | Status     | Queries |
+| ---------------- | ---------- | ------- |
+| Basic Validation | Complete   | 3/3     |
+| Data Quality     | Complete   | 4/4     |
+| Duplicates       | ⏳ Pending | 0/3     |
+| Data Integrity   | ⏳ Pending | 0/3     |
 
 ---
 
