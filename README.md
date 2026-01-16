@@ -177,7 +177,7 @@ Or open in MySQL Workbench and execute.
 | ---------------- | ---------- | ------- |
 | Basic Validation | Complete   | 3/3     |
 | Data Quality     | Complete   | 4/4     |
-| Duplicates       | ⏳ Pending | 0/3     |
+| Duplicates       | Complete   | 3/3     |
 | Data Integrity   | ⏳ Pending | 0/3     |
 
 ---
