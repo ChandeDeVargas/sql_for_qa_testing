@@ -171,16 +171,30 @@ Or open in MySQL Workbench and execute.
 
 ---
 
-## 📈 Project Status
+## 📊 Project Status
 
-| Category         | Status     | Queries |
-| ---------------- | ---------- | ------- |
-| Basic Validation | Complete   | 3/3     |
-| Data Quality     | Complete   | 4/4     |
-| Duplicates       | Complete   | 3/3     |
-| Data Integrity   | ⏳ Pending | 0/3     |
+| Category         | Status      | Queries |
+| ---------------- | ----------- | ------- |
+| Basic Validation | ✅ Complete | 3/3     |
+| Data Quality     | ✅ Complete | 4/4     |
+| Duplicates       | ✅ Complete | 3/3     |
+| Data Integrity   | ✅ Complete | 3/3     |
 
----
+**Total: 13 professional QA queries**
+
+### 🐛 Bugs Found
+
+This project successfully detected:
+
+- 3 orders with invalid totals (negative/zero)
+- 2 records with future dates
+- 3 products with zero/negative prices
+- 1 user with empty name
+- 2 duplicate emails (4 users affected)
+- 1 orphaned order (user doesn't exist)
+- 1 broken reference (product doesn't exist)
+
+**Data Integrity: 86.67%** (13 out of 15 orders are valid)
 
 ## 🤝 Contributing
 
