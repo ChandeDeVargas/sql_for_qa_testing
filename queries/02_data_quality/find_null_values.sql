@@ -1,60 +1,122 @@
 -- ============================================
--- FIND NULL VALUES - Data Quality Check
+-- NULL VALUES - Missing Critical Data
 -- ============================================
--- Purpose: Detect incomplete records with missing mandatory fields
--- QA Focus: Data completeness
+-- Business Impact: App crashes, emails fail, reports break
+-- QA Question: "Can the system function with missing data?"
 -- ============================================
 
--- Query 1: Users with missing mandatory fields
-SELECT
-    id,
-    name,
-    email,
-    created_at,
-    CASE
-        WHEN name IS NULL THEN 'Critical: Missing Name'
-        WHEN name = '' THEN 'Warning: Empty Name'
-        WHEN email IS NULL THEN 'Critical: Missing Email'
-        WHEN email = '' THEN 'Warning: Empty Email'
-    END AS missing_field
-FROM users
-WHERE name IS NULL OR email IS NULL OR trim(name) = '' OR trim(email) = '';
+USE sql_for_qa_testing;
 
--- Query 2: Products with missing mandatory fields
+-- ============================================
+-- Check 1: Users with incomplete profiles
+-- ============================================
 SELECT
-    id,
-    name,
-    price,
-    created_at,
-    CASE
-        WHEN name IS NULL THEN 'Critical: Missing Name'
-        WHEN price IS NULL THEN 'Critical: Missing Price'
-    END AS missing_field
-FROM products
-WHERE name IS NULL OR price IS NULL;
-
--- Query 3: Orders with missing mandatory fields
-SELECT
-    id,
     user_id,
-    product_id,
-    total,
-    status,
-    order_date,
+    full_name,
+    email,
+    account_status,
+    
+    -- Identify what's missing
     CASE
-        WHEN user_id IS NULL THEN 'Critical: Missing User ID'
-        WHEN product_id IS NULL THEN 'Critical: Missing Product ID'
-        WHEN total IS NULL THEN 'Critical: Missing Total'
-        WHEN status IS NULL THEN 'Critical: Missing Status'
-    END AS missing_field
+        WHEN full_name IS NULL THEN 
+            'CRITICAL: NULL name - Email template will crash'
+        WHEN TRIM(full_name) = '' THEN 
+            'WARNING: Empty name - "Hello, !" in emails'
+        WHEN email IS NULL THEN 
+            'CRITICAL: NULL email - Can\'t contact user'
+        WHEN TRIM(email) = '' THEN 
+            'WARNING: Empty email - Invalid account'
+        WHEN email NOT LIKE '%@%' THEN
+            'WARNING: Invalid email format - Bounced emails'
+        ELSE 'Complete'
+    END AS data_issue,
+    
+    -- Business impact
+    CASE
+        WHEN full_name IS NULL OR TRIM(full_name) = '' THEN
+            'Can\'t personalize: Welcome emails, support tickets'
+        WHEN email IS NULL OR TRIM(email) = '' THEN
+            'Can\'t contact: Password reset, order updates'
+        ELSE 'N/A'
+    END AS impact
+
+FROM users
+WHERE full_name IS NULL 
+   OR TRIM(full_name) = '' 
+   OR email IS NULL 
+   OR TRIM(email) = ''
+   OR email NOT LIKE '%@%';
+
+-- Expected: User 5 with empty name
+
+-- ============================================
+-- Check 2: Products with incomplete catalog data
+-- ============================================
+SELECT
+    product_id,
+    product_name,
+    price,
+    stock_quantity,
+    
+    CASE
+        WHEN product_name IS NULL THEN 
+            'CRITICAL: NULL name - Can\'t display product'
+        WHEN TRIM(product_name) = '' THEN
+            'WARNING: Empty name - Shows as blank'
+        WHEN price IS NULL THEN 
+            'CRITICAL: NULL price - Checkout will crash'
+        ELSE 'Complete'
+    END AS data_issue
+
+FROM products
+WHERE product_name IS NULL 
+   OR TRIM(product_name) = ''
+   OR price IS NULL;
+
+-- Expected: No NULL bugs in products (schema enforces NOT NULL)
+
+-- ============================================
+-- Check 3: Orders with missing references
+-- ============================================
+SELECT
+    order_id,
+    user_id,
+    order_total,
+    order_status,
+    
+    CASE
+        WHEN user_id IS NULL THEN 
+            'CRITICAL: NULL user_id - Orphaned order'
+        WHEN order_total IS NULL THEN 
+            'CRITICAL: NULL total - Billing impossible'
+        WHEN order_status IS NULL THEN 
+            'WARNING: NULL status - Can\'t track order'
+        ELSE 'Complete'
+    END AS data_issue
+
 FROM orders
 WHERE user_id IS NULL 
-   OR product_id IS NULL 
-   OR total IS NULL 
-   OR status IS NULL;
+   OR order_total IS NULL 
+   OR order_status IS NULL;
+
+-- Expected: No NULL bugs (foreign keys enforce this)
 
 -- ============================================
--- Findings:
--- - No null values found in critical columns (Users, Products, Orders).
--- - Data completeness verified successfully.
+-- REAL-WORLD IMPACT:
+-- ============================================
+-- User 5: Empty name ('')
+--   → Email template: "Hello, !" (looks unprofessional)
+--   → Support ticket: "Ticket from " (no name)
+--   → Can't search for user by name
+--
+-- If we HAD NULL emails:
+--   → Can't send order confirmations
+--   → Can't reset passwords
+--   → Account is unusable
+--
+-- QA ACTION:
+-- 1. Add NOT NULL constraints to critical columns
+-- 2. Frontend validation: Require name and email
+-- 3. Backend validation: Reject empty strings
+-- 4. Data cleanup: Fix user 5's empty name
 -- ============================================
