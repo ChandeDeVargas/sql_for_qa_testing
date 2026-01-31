@@ -1,32 +1,55 @@
 -- ============================================
--- FILTER BY DATE - Date Validation
+-- DATE VALIDATION - Time-Based Data Quality
 -- ============================================
--- Purpose: Filter orders by date range and detect invalid dates
--- QA Focus: Future dates, negative totals, invalid status
+-- Business Impact: Bad dates break reports, analytics, forecasts
+-- QA Question: "Are order dates realistic?"
 -- ============================================
 
--- Query 1: Orders in March 2024
+USE sql_for_qa_testing;
+
+-- Find orders with suspicious dates
 
 SELECT
-id,
-user_id,
-product_id,
-total,
-order_date,
-status,
--- Flag Potential Uses
-CASE
-WHEN order_date > NOW() THEN 'WARNING: Future Date'
-WHEN status NOT IN ('pending', 'completed', 'cancelled') THEN 'WARNING: Invalid Status'
-WHEN total <= 0 THEN 'WARNING: Invalid Total'
-ELSE 'OK'
-END AS validation_status
+    order_id,
+    user_id,
+    order_total,
+    order_date,
+    order_status,
+    
+    -- Date validation
+    CASE
+        WHEN order_date > NOW() THEN 
+            CONCAT('FUTURE DATE - ', DATEDIFF(order_date, NOW()), ' days ahead')
+        WHEN order_date < '2020-01-01' THEN 
+            'Very old order (before system launch?)'
+        WHEN order_total <= 0 THEN 
+            'Invalid total (not date issue, but still bad)'
+        ELSE 'OK'
+    END AS date_issue,
+    
+    DATEDIFF(NOW(), order_date) AS days_ago
+    
 FROM orders
-WHERE order_date BETWEEN '2024-03-01' AND '2024-03-31' or order_date > NOW() or order_date < '2020-01-01'
-ORDER BY id;
+WHERE 
+    order_date > NOW()                    -- Future orders
+    OR order_date < '2020-01-01'          -- Suspiciously old
+    OR order_total <= 0                   -- Include financial bugs too
+ORDER BY order_date DESC;
 
 -- ============================================
--- Bugs found:
--- - Order ID 9: Future date
--- - Order ID 4, 13, 14: Negative total
+-- Bugs found: 3
+-- ============================================
+-- Order 7: Date = 2027-12-25 (3+ years in future)
+--   → Impact: 
+--     - "Recent orders" report shows this
+--     - Analytics thinks we have sales in 2027
+--     - Inventory forecasting is wrong
+--
+-- Order 4: Negative total (-$299.99)
+-- Order 8: Zero total ($0.00)
+--   → Not date bugs, but caught here for completeness
+--
+-- QA Action:
+-- - Add constraint: order_date <= NOW()
+-- - Validate dates on frontend AND backend
 -- ============================================

@@ -1,31 +1,51 @@
 -- ============================================
--- LIST USERS - Basic Validation
+-- LIST USERS - Data Quality Check
 -- ============================================
--- Purpose: List all users and identify potential data issues
--- QA Focus: Empty names, invalid emails, suspicious dates
+-- Business Impact: Bad user data = Failed emails, support tickets, lost customers
+-- QA Question: "Can our system handle these users correctly?"
 -- ============================================
 
--- List all users with key information
+USE sql_qa_testing;
+
+-- Full user audit with validation flags
 SELECT 
-    id,
+    user_id,
     email,
-    name,
+    full_name,
     created_at,
-    status,
-    -- Flag potential issues
+    account_status,
+    
+    -- QA Validation Flags
     CASE 
-        WHEN name = '' THEN 'WARNING: Empty name'
-        WHEN created_at > NOW() THEN 'WARNING: Future date'
-        WHEN email NOT LIKE '%@%' THEN 'WARNING: Invalid email'
+        WHEN full_name = '' OR full_name IS NULL THEN 'Empty name - Email personalization will fail'
+        WHEN created_at > NOW() THEN 'Future date - Impossible data'
+        WHEN email NOT LIKE '%@%' THEN 'Invalid email - Can\'t send notifications'
         ELSE 'OK'
-    END AS validation_status
+    END AS issue_detected,
+    
+    -- Additional context
+    DATEDIFF(NOW(), created_at) AS days_since_signup
+    
 FROM users
-ORDER BY id;
+ORDER BY 
+    CASE 
+        WHEN full_name = '' THEN 1
+        WHEN created_at > NOW() THEN 2
+        ELSE 3
+    END,
+    user_id;
 
 -- ============================================
--- Expected bugs to find:
--- - User ID 5: Empty name
--- - User ID 8: Future creation date
--- - User ID 1 & 4: Duplicate email (will detect in duplicates section)
--- - User ID 2 & 10: Duplicate email
+--  What QA is looking for:
+-- Bugs found: 2
+-- ============================================
+--  Valid users: Should display correctly, emails work
+--  User 5: Empty name → "Welcome, !" in emails
+--  User 8: Future date → Reports will be wrong
+--  Users 1&4, 2&10: Duplicate emails → Login conflicts (see duplicates query)
+--
+-- Real-world impact:
+-- - Empty names break email templates
+-- - Future dates break analytics dashboards  
+-- - Duplicates cause "email already exists" errors
 -- ============================================
