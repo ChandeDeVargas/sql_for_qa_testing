@@ -64,61 +64,57 @@ The seed data contains **real-world bugs** that QA engineers encounter:
 
 ---
 
-## 📂 Query Organization
-
-Queries are organized by validation type:
+## 📂 Project Structure
 
 ```
-queries/
-├── 01_basic_validation/      # List, filter, order data
-├── 02_data_quality/          # Find invalid data
-├── 03_duplicates/            # Detect duplicates
-└── 04_data_integrity/        # Validate relationships
+sql-for-qa-testing/
+├── schema/
+│   └── schema.sql              # Database structure (simple & clear)
+├── data/
+│   └── seed_data.sql           # Test data with intentional bugs
+├── queries/
+│   ├── 01_basic_queries.sql    # Simple filters and aggregations
+│   ├── 02_joins.sql            # Find missing relationships
+│   └── 03_edge_cases.sql       # Real-world scenarios
+├── results/
+│   └── bug_findings.md         # Document what you found
+└── README.md
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### **Prerequisites**
+### Prerequisites
 
 - MySQL 8.0+
 - MySQL Workbench (or any SQL client)
 
-### **Setup**
+### Setup
 
-1. **Clone the repository:**
-
-```bash
-   git clone https://github.com/your-username/sql-for-qa-testing.git
-   cd sql-for-qa-testing
-```
-
-2. **Create database:**
+1. **Create database:**
 
 ```sql
-   CREATE DATABASE sql_qa_testing;
-   USE sql_qa_testing;
+   CREATE DATABASE ecommerce_qa_testing;
+   USE ecommerce_qa_testing;
 ```
 
-3. **Run schema:**
+2. **Run schema:**
 
 ```bash
-   mysql -u root -p sql_qa_testing < database/schema.sql
+   mysql -u root -p ecommerce_qa_testing < schema/schema.sql
 ```
 
-4. **Load seed data:**
+3. **Load test data:**
 
 ```bash
-   mysql -u root -p sql_qa_testing < database/seed_data.sql
+   mysql -u root -p ecommerce_qa_testing < data/seed_data.sql
 ```
 
-5. **Verify setup:**
+4. **Start finding bugs:**
 
 ```sql
-   SELECT COUNT(*) FROM users;    -- Should return 10
-   SELECT COUNT(*) FROM products; -- Should return 10
-   SELECT COUNT(*) FROM orders;   -- Should return 15
+   source queries/01_basic_queries.sql
 ```
 
 ---
@@ -193,6 +189,31 @@ This project successfully detected:
 - 2 duplicate emails (4 users affected)
 - 1 orphaned order (user doesn't exist)
 - 1 broken reference (product doesn't exist)
+
+## 🎓 Learning Outcomes
+
+### QA Thinking:
+
+- ✅ How to approach data validation systematically
+- ✅ What questions to ask about data integrity
+- ✅ How to prioritize which checks matter most
+- ✅ Writing queries that find **real** bugs
+
+### SQL Skills:
+
+- ✅ Basic SELECT with meaningful WHERE clauses
+- ✅ JOINs to detect missing relationships
+- ✅ Aggregations (COUNT, SUM) for validation
+- ✅ NULL handling (IS NULL, COALESCE)
+
+### Not Covered (Intentionally):
+
+- ❌ Window functions (ROW_NUMBER, RANK)
+- ❌ Complex subqueries
+- ❌ CTEs (WITH clauses)
+- ❌ Stored procedures
+
+**Why?** These are developer tools. QA needs **clarity over complexity**.
 
 **Data Integrity: 86.67%** (13 out of 15 orders are valid)
 
