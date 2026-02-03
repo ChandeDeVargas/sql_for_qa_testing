@@ -54,7 +54,7 @@ ORDER BY LOWER(p.product_name), p.price;
 -- ============================================
 -- EXPECTED FINDINGS:
 -- ============================================
--- Current data: NO duplicate product names found ✅
+-- Current data: NO duplicate product names found
 --
 -- IF duplicates existed, impact would be:
 --

@@ -67,7 +67,7 @@ ORDER BY o.user_id, o.order_date;
 -- ============================================
 -- EXPECTED FINDINGS:
 -- ============================================
--- Current data: NO duplicate orders found ✅
+-- Current data: NO duplicate orders found
 --
 -- IF duplicates existed, impact would be:
 --
